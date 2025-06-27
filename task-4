@@ -1,0 +1,109 @@
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+
+public class NotesManager {
+    private static final String NOTES_DIR = "notes";
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        createNotesDirectory();
+        int choice;
+        do {
+            showMenu();
+            choice = Integer.parseInt(scanner.nextLine());
+
+            switch (choice) {
+                case 1 -> createNote();
+                case 2 -> viewNote();
+                case 3 -> listNotes();
+                case 4 -> deleteNote();
+                case 5 -> System.out.println("Exiting...");
+                default -> System.out.println("Invalid choice.");
+            }
+            System.out.println();
+        } while (choice != 5);
+    }
+
+    private static void showMenu() {
+        System.out.println("""
+        === Notes Manager ===
+        1. Create Note
+        2. View Note
+        3. List Notes
+        4. Delete Note
+        5. Exit
+        Enter your choice:""");
+    }
+
+    private static void createNotesDirectory() {
+        File dir = new File(NOTES_DIR);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+    }
+
+    private static void createNote() {
+        System.out.print("Enter note title: ");
+        String title = scanner.nextLine();
+        String fileName = NOTES_DIR + "/" + title + ".txt";
+
+        System.out.println("Enter note content (end with a single line with 'END'):");
+        StringBuilder content = new StringBuilder();
+        String line;
+        while (!(line = scanner.nextLine()).equals("END")) {
+            content.append(line).append(System.lineSeparator());
+        }
+
+        try (FileWriter writer = new FileWriter(fileName)) {
+            writer.write(content.toString());
+            System.out.println("Note saved successfully.");
+        } catch (IOException e) {
+            System.out.println("Error writing file.");
+        }
+    }
+
+    private static void viewNote() {
+        System.out.print("Enter note title to view: ");
+        String title = scanner.nextLine();
+        String fileName = NOTES_DIR + "/" + title + ".txt";
+
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(fileName));
+            System.out.println("\n--- " + title + " ---");
+            lines.forEach(System.out::println);
+        } catch (IOException e) {
+            System.out.println("Note not found.");
+        }
+    }
+
+    private static void listNotes() {
+        File dir = new File(NOTES_DIR);
+        String[] files = dir.list((d, name) -> name.endsWith(".txt"));
+
+        if (files == null || files.length == 0) {
+            System.out.println("No notes found.");
+        } else {
+            System.out.println("--- Notes List ---");
+            for (String file : files) {
+                System.out.println("- " + file.replace(".txt", ""));
+            }
+        }
+    }
+
+    private static void deleteNote() {
+        System.out.print("Enter note title to delete: ");
+        String title = scanner.nextLine();
+        File file = new File(NOTES_DIR + "/" + title + ".txt");
+
+        if (file.exists()) {
+            if (file.delete()) {
+                System.out.println("Note deleted.");
+            } else {
+                System.out.println("Could not delete note.");
+            }
+        } else {
+            System.out.println("Note not found.");
+        }
+    }
+}
