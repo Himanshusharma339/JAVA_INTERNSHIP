@@ -1,0 +1,133 @@
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Scanner;
+
+// Transaction class to store transaction details
+class Transaction {
+    String type;
+    double amount;
+    Date date;
+
+    public Transaction(String type, double amount) {
+        this.type = type;
+        this.amount = amount;
+        this.date = new Date(); // current timestamp
+    }
+
+    public void printTransaction() {
+        System.out.println(type + " of ₹" + amount + " on " + date);
+    }
+}
+
+// BankAccount class for account operations
+class BankAccount {
+    private String holderName;
+    private String accountNumber;
+    private double balance;
+    private ArrayList<Transaction> transactions;
+
+    public BankAccount(String holderName, String accountNumber, double initialBalance) {
+        this.holderName = holderName;
+        this.accountNumber = accountNumber;
+        this.balance = initialBalance;
+        this.transactions = new ArrayList<>();
+        transactions.add(new Transaction("Initial Deposit", initialBalance));
+    }
+
+    public void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+            transactions.add(new Transaction("Deposit", amount));
+            System.out.println("₹" + amount + " deposited.");
+        } else {
+            System.out.println("Invalid deposit amount.");
+        }
+    }
+
+    public void withdraw(double amount) {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+            transactions.add(new Transaction("Withdrawal", amount));
+            System.out.println("₹" + amount + " withdrawn.");
+        } else {
+            System.out.println("Insufficient balance or invalid amount.");
+        }
+    }
+
+    public void showBalance() {
+        System.out.println("Current balance: ₹" + balance);
+    }
+
+    public void showTransactions() {
+        System.out.println("----- Transaction History -----");
+        for (Transaction t : transactions) {
+            t.printTransaction();
+        }
+        System.out.println("--------------------------------");
+    }
+
+    public void showAccountDetails() {
+        System.out.println("Account Holder: " + holderName);
+        System.out.println("Account Number: " + accountNumber);
+        showBalance();
+    }
+}
+
+// Main application class
+public class BankApp {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Setup account
+        System.out.print("Enter Account Holder Name: ");
+        String name = sc.nextLine();
+
+        System.out.print("Enter Account Number: ");
+        String accNum = sc.nextLine();
+
+        System.out.print("Enter Initial Deposit: ");
+        double initialDeposit = sc.nextDouble();
+
+        BankAccount account = new BankAccount(name, accNum, initialDeposit);
+
+        int choice;
+        do {
+            System.out.println("\n===== Bank Menu =====");
+            System.out.println("1. Deposit");
+            System.out.println("2. Withdraw");
+            System.out.println("3. Check Balance");
+            System.out.println("4. Account Details");
+            System.out.println("5. View Transactions");
+            System.out.println("6. Exit");
+            System.out.print("Enter your choice (1-6): ");
+            choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter deposit amount: ");
+                    account.deposit(sc.nextDouble());
+                    break;
+                case 2:
+                    System.out.print("Enter withdrawal amount: ");
+                    account.withdraw(sc.nextDouble());
+                    break;
+                case 3:
+                    account.showBalance();
+                    break;
+                case 4:
+                    account.showAccountDetails();
+                    break;
+                case 5:
+                    account.showTransactions();
+                    break;
+                case 6:
+                    System.out.println("Exiting. Thank you!");
+                    break;
+                default:
+                    System.out.println("Invalid option.");
+            }
+        } while (choice != 6);
+
+        sc.close();
+    }
+}
